@@ -1,0 +1,31 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  proto:
+    dir: ./proto
+    cmds:
+      - protoc --proto_path=.  --go_out=. --go_opt=paths=import ./hello.proto
+      - protoc --proto_path=. --go-grpc_out=. --go-grpc_opt=paths=import ./hello.proto
+
+  runClient:
+      dir: ./cmd/client
+      cmds:
+        - go run main.go
+  runServer:
+      dir: ./cmd/server
+      cmds:
+        - go run main.go --port :8011
+  runServer2:
+    dir: ./cmd/server
+    cmds:
+      - go run main.go --port :8012

@@ -1,0 +1,16 @@
+syntax = "proto3";
+package hello;
+//import "google/protobuf/empty.proto";
+option go_package = "./gohello";
+
+message Reqmsg{
+  string name = 1;
+}
+
+message Response{
+  string message = 1;
+}
+
+service Hello {
+  rpc SayHello(Reqmsg) returns (Response) {}
+}
