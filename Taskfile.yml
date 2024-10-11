@@ -10,7 +10,7 @@ tasks:
     cmds:
       - echo "{{.GREETING}}"
     silent: true
-
+  #  connect rpc测试
   proto:
     dir: ./proto
     cmds:
@@ -29,3 +29,18 @@ tasks:
     dir: ./cmd/server
     cmds:
       - go run main.go --port :8012
+  #db test
+  dbMysql:
+    dir: ./cmd/db/mysql
+    cmds:
+      - go run main.go
+  dbRedis:
+    dir: ./cmd/db/redis
+    cmds:
+      - go run main.go
+
+  #config
+  yamlConfig:
+      dir: ./cmd/config
+      cmds:
+        - go run main.go

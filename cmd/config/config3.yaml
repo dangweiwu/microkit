@@ -1,0 +1,4 @@
+Host: "localhost:3306"
+user: ""
+Password: "123"
+Role: "author"

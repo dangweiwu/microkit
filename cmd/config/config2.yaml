@@ -1,0 +1,5 @@
+Host: "localhost:3306"
+user: ""
+Password: "123"
+Role: "abc"
+#string `validate:"one_of=admin,publisher,author"`

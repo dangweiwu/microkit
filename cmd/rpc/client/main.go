@@ -67,7 +67,7 @@ func main() {
 	for {
 		select {
 		case <-interrupt:
-			break
+			return
 		case <-time.After(time.Second * 5):
 			r, e := Cli.Hello.SayHello(context.Background(), &gohello.Reqmsg{Name: "anan:" + time.Now().Format(time.TimeOnly)})
 			log.Println(r, e)
