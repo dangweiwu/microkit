@@ -44,3 +44,8 @@ tasks:
       dir: ./cmd/config
       cmds:
         - go run main.go
+  # observe
+  observelog:
+      dir: ./cmd/observe/logx
+      cmds:
+        - go run main.go
