@@ -49,3 +49,38 @@ tasks:
       dir: ./cmd/observe/logx
       cmds:
         - go run main.go
+
+  remote-openObserve-docker:
+    - >
+      ssh root@{{.host}} '
+      docker run -v /root/openobserve:/data 
+      -p 8080:5080
+      -e ZO_DATA_DIR="/data" 
+      -e ZO_ROOT_USER_EMAIL="root@qq.com" 
+      -e ZO_ROOT_USER_PASSWORD="a12346" 
+      -d
+      --name openobserve
+      public.ecr.aws/zinclabs/openobserve:latest'
+
+  openObserve-docker:
+    dir: ./cmd/observe
+    vars:
+      PWD:
+        sh: pwd
+    cmds:
+      - pwd
+      - >
+        docker run 
+        -v '{{.PWD}}/openobserve':/data 
+        -p 8080:5080
+        -e ZO_DATA_DIR="./data" 
+        -e ZO_ROOT_USER_EMAIL="root@qq.com" 
+        -e ZO_ROOT_USER_PASSWORD="a123456" 
+        -d
+        --name openobserve
+        public.ecr.aws/zinclabs/openobserve:v0.10.9
+
+  observe-trace:
+    dir: ./cmd/observe/tracex
+    cmds:
+      - go run main.go
