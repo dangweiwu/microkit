@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"microkit/observe/tracex"
 	"time"
@@ -14,6 +15,7 @@ func main() {
 		ServerName:  "demoServe",
 		StreamName:  "demoStream",
 		SampleType:  1,
+		IsDebug:     false,
 	}
 	var err error
 	traceCli, err := tracex.NewTraceCli(config)
@@ -23,39 +25,48 @@ func main() {
 	defer traceCli.Close()
 
 	go func() {
-
-		ctx, span := traceCli.Tracer.Start(context.Background(), "trace1")
+		log.Printf("A============start")
+		defer log.Println("A==============end")
+		ctx, span := traceCli.Tracer.Start(context.Background(), "A")
 		defer span.End()
-		span.AddEvent("trace1 event")
+		span.AddEvent("A event")
 
-		_, span2 := traceCli.Tracer.Start(ctx, "trace2")
+		_, span2 := traceCli.Tracer.Start(ctx, "A-sub")
 		defer span2.End()
-		span2.AddEvent("trace2 event")
+		span2.AddEvent("A-sub event")
 	}()
 
 	time.Sleep(time.Second * 2)
 	go func() {
-		traceCli.ChangeSample(0)
+		log.Printf("B============start")
+		defer log.Println("B==============end")
+		traceCli.Close()
 
-		ctx, span := traceCli.Tracer.Start(context.Background(), "trace11")
+		ctx, span := traceCli.Tracer.Start(context.Background(), "B")
 		defer span.End()
-		span.AddEvent("trace11 event")
-
-		_, span2 := traceCli.Tracer.Start(ctx, "trace22")
+		span.AddEvent("B event")
+		//
+		_, span2 := traceCli.Tracer.Start(ctx, "B-sub")
 		defer span2.End()
-		span2.AddEvent("trace22 event")
-	}()
-	go func() {
-		traceCli.ChangeSample(1)
-
-		ctx, span := traceCli.Tracer.Start(context.Background(), "trace3")
-		defer span.End()
-		span.AddEvent("trace3 event")
-
-		_, span2 := traceCli.Tracer.Start(ctx, "trace3")
-		defer span2.End()
-		span2.AddEvent("trace3 event")
+		span2.AddEvent("B-sub event")
 	}()
 	time.Sleep(time.Second * 2)
+	go func() {
+		log.Printf("C============start")
+		defer log.Println("C==============end")
+		err := traceCli.Start()
+		fmt.Println("C err", err)
+
+		ctx, span := traceCli.Tracer.Start(context.Background(), "C")
+		defer span.End()
+		span.AddEvent("C event")
+		//
+		_, span2 := traceCli.Tracer.Start(ctx, "C-sub")
+		defer span2.End()
+		span2.AddEvent("C-sub event")
+	}()
+
+	time.Sleep(time.Second * 2)
+	//traceCli.Provider.ForceFlush(context.Background())
 
 }

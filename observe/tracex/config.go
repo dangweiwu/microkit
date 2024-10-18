@@ -11,6 +11,7 @@ type Config struct {
 	ServerName  string      `validate:"empty=false"` // 服务名称
 	StreamName  string      `default:"default"`
 	SampleType  SamplerType `default:"0"` //0~3
+	IsDebug     bool        `default:"false"`
 }
 
 type SamplerType int

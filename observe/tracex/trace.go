@@ -2,9 +2,10 @@ package tracex
 
 import (
 	"context"
+	"fmt"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
@@ -39,25 +40,47 @@ func newTraceProvider(exp trace.SpanExporter, res *resource.Resource, sampler Sa
 	)
 }
 
+func newExporter() (trace.SpanExporter, error) {
+	return stdouttrace.New()
+}
+
 type TraceCli struct {
 	lock     sync.Mutex
-	export   *otlptrace.Exporter
+	export   trace.SpanExporter
 	resource *resource.Resource
 	Provider *trace.TracerProvider
 	Tracer   trac.Tracer
+	config   Config
 }
 
 func NewTraceCli(config Config) (*TraceCli, error) {
 	a := &TraceCli{}
-	export, err := otlptracehttp.New(context.Background(),
-		otlptracehttp.WithInsecure(),
-		otlptracehttp.WithEndpointURL(config.EndpointUrl),
-		otlptracehttp.WithHeaders(map[string]string{
-			"Authorization": config.Auth,
-			"stream-name":   config.StreamName,
-		}))
+	a.config = config
+	if err := a.Start(); err != nil {
+		return a, err
+	} else {
+		return a, nil
+	}
+}
+
+func (a *TraceCli) Start() error {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+	var export trace.SpanExporter
+	var err error
+	if a.config.IsDebug {
+		export, err = stdouttrace.New()
+	} else {
+		export, err = otlptracehttp.New(context.Background(),
+			otlptracehttp.WithInsecure(),
+			otlptracehttp.WithEndpointURL(a.config.EndpointUrl),
+			otlptracehttp.WithHeaders(map[string]string{
+				"Authorization": a.config.Auth,
+				"stream-name":   a.config.StreamName,
+			}))
+	}
 	if err != nil {
-		return nil, err
+		return err
 	}
 	a.export = export
 
@@ -65,30 +88,16 @@ func NewTraceCli(config Config) (*TraceCli, error) {
 		resource.Default(),
 		resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceName(config.ServerName),
+			semconv.ServiceName(a.config.ServerName),
 		),
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	a.resource = res
-	a.Provider = newTraceProvider(a.export, a.resource, config.SampleType)
+	a.Provider = newTraceProvider(a.export, a.resource, a.config.SampleType)
 	otel.SetTracerProvider(a.Provider)
 	a.Tracer = a.NewTracer("")
-	return a, nil
-}
-
-func (t *TraceCli) ChangeSample(samplerType SamplerType) error {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-
-	//强制刷新
-	if t.Provider != nil {
-		t.Provider.ForceFlush(context.Background())
-		t.Provider = newTraceProvider(t.export, t.resource, samplerType)
-		otel.SetTracerProvider(t.Provider)
-		t.Tracer = t.NewTracer("")
-	}
 	return nil
 }
 
@@ -99,14 +108,24 @@ func (t *TraceCli) Close() {
 		ctx, c := context.WithTimeout(context.Background(), time.Second)
 		defer c()
 
-		t.Provider.ForceFlush(ctx)
-		t.Provider.Shutdown(ctx)
+		err := t.Provider.ForceFlush(ctx)
+		fmt.Println(err)
+		time.Sleep(time.Second)
+		ctx, c = context.WithTimeout(context.Background(), time.Second)
+		defer c()
+
+		err = t.Provider.Shutdown(ctx)
+		fmt.Println(err)
+		t.Provider = nil
+		t.Tracer = t.NewTracer("CLOSE============")
 	}
 }
 
 func (t *TraceCli) NewTracer(name string, opt ...trac.TracerOption) trac.Tracer {
 	if t.Provider != nil {
+		//fmt.Println("ok tracer")
 		return t.Provider.Tracer(name, opt...)
 	}
+	//fmt.Println("no tracer")
 	return noop.NewTracerProvider().Tracer(name, opt...)
 }
