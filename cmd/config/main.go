@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"microkit/yamlconfig"
+	"github.com/dangweiwu/microkit/yamlconfig"
 )
 
 type Config struct {

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/alicebob/miniredis/v2"
+	"github.com/dangweiwu/microkit/db/redisx"
 	"log"
-	"microkit/db/redisx"
 )
 
 func main() {

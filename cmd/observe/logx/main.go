@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/dangweiwu/microkit/observe/logx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"log"
-	"microkit/observe/logx"
 )
 
 func main() {

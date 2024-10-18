@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/dangweiwu/microkit/db/mysqlx"
 	"gorm.io/gorm"
 	"log"
-	"microkit/db/mysqlx"
 )
 
 type Demo struct {

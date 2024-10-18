@@ -1,4 +1,4 @@
-module microkit
+module github.com/dangweiwu/microkit
 
 go 1.22.4
 
