@@ -5,13 +5,12 @@ go 1.22.4
 require (
 	github.com/alicebob/miniredis/v2 v2.33.0
 	github.com/creasty/defaults v1.8.0
-	github.com/dolthub/go-mysql-server v0.18.1
+	github.com/dolthub/go-mysql-server v0.18.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	go.opentelemetry.io/otel v1.31.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.31.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.31.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.31.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.31.0
 	go.opentelemetry.io/otel/metric v1.31.0
@@ -41,6 +40,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.7.2-0.20231213112541-0004702b931d // indirect
+	github.com/gocraft/dbr/v2 v2.7.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
@@ -54,6 +54,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/tetratelabs/wazero v1.1.0 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.31.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
