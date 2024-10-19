@@ -1,11 +1,11 @@
 module github.com/dangweiwu/microkit
 
-go 1.22.4
+go 1.22
 
 require (
 	github.com/alicebob/miniredis/v2 v2.33.0
 	github.com/creasty/defaults v1.8.0
-	github.com/dolthub/go-mysql-server v0.18.0
+	github.com/dolthub/go-mysql-server v0.18.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
@@ -40,7 +40,6 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.7.2-0.20231213112541-0004702b931d // indirect
-	github.com/gocraft/dbr/v2 v2.7.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
