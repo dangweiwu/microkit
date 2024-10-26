@@ -2,7 +2,6 @@ package tracex
 
 import (
 	"context"
-	"fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -108,24 +107,18 @@ func (t *TraceCli) Close() {
 		ctx, c := context.WithTimeout(context.Background(), time.Second)
 		defer c()
 
-		err := t.Provider.ForceFlush(ctx)
-		fmt.Println(err)
-		time.Sleep(time.Second)
+		t.Provider.ForceFlush(ctx)
 		ctx, c = context.WithTimeout(context.Background(), time.Second)
 		defer c()
 
-		err = t.Provider.Shutdown(ctx)
-		fmt.Println(err)
+		t.Provider.Shutdown(ctx)
 		t.Provider = nil
-		t.Tracer = t.NewTracer("CLOSE============")
 	}
 }
 
 func (t *TraceCli) NewTracer(name string, opt ...trac.TracerOption) trac.Tracer {
 	if t.Provider != nil {
-		//fmt.Println("ok tracer")
 		return t.Provider.Tracer(name, opt...)
 	}
-	//fmt.Println("no tracer")
 	return noop.NewTracerProvider().Tracer(name, opt...)
 }

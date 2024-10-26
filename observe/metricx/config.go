@@ -6,4 +6,5 @@ type Config struct {
 	ServerName  string `validate:"empty=false"` // 服务名称
 	StreamName  string `default:"default"`
 	Interval    int    `default:"60"` //导出时间间隔 单位秒
+	IsDebug     bool   `default:"true"`
 }

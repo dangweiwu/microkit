@@ -84,3 +84,9 @@ tasks:
     dir: ./cmd/observe/tracex
     cmds:
       - go run main.go
+  observe-meter:
+    dir: ./cmd/observe/metric
+    cmds:
+      - pwd
+      - ls
+      - go run main.go
