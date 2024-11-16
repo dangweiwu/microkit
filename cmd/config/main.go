@@ -6,15 +6,16 @@ import (
 )
 
 type Config struct {
-	Host     string
-	User     string `json:"user" default:"user"`
-	Password string `validate:"empty=false"`
-	Role     string `validate:"one_of=admin,publisher,author"`
+	Host      string `yaml:"Host"`
+	User      string `yaml:"User" default:"user"`
+	Password  string `yaml:"Password" validate:"required"`
+	Role      string `yaml:"Role" validate:"oneof=admin publisher author"`
+	SuperUser string `yaml:"SuperUser"`
 }
 
 func main() {
 	cfg := &Config{}
-
+	//
 	func() {
 		defer func() {
 			e := recover()
@@ -29,9 +30,13 @@ func main() {
 			e := recover()
 			fmt.Println(e)
 		}()
+		cfg = &Config{}
 
 		yamlconfig.MustLoad("config2.yaml", cfg)
 	}()
+
+	cfg = &Config{}
+
 	yamlconfig.MustLoad("config3.yaml", cfg)
 	fmt.Println(cfg)
 }

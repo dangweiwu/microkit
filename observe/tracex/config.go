@@ -6,12 +6,12 @@ package tracex
 */
 
 type Config struct {
-	EndpointUrl string      `validate:"empty=false"` // 链路追踪地址
-	Auth        string      `validate:"empty=false"` // 链路追踪认证
-	ServerName  string      `validate:"empty=false"` // 服务名称
-	StreamName  string      `default:"default"`
-	SampleType  SamplerType `default:"0"` //0~3
-	IsDebug     bool        `default:"false"`
+	EndpointUrl string      `yaml:"EndpointUrl" validate:"required"` // 链路追踪地址
+	Auth        string      `yaml:"Auth" validate:"required"`        // 链路追踪认证
+	ServerName  string      `yaml:"ServerName" validate:"required"`  // 服务名称
+	StreamName  string      `yaml:"StreamName" default:"default"`
+	SampleType  SamplerType `yaml:"SampleType" default:"0"` //0~3
+	IsDebug     bool        `yaml:"IsDebug" default:"false"`
 }
 
 type SamplerType int

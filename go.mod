@@ -7,6 +7,7 @@ require (
 	github.com/creasty/defaults v1.8.0
 	github.com/dolthub/go-mysql-server v0.18.1
 	github.com/fsnotify/fsnotify v1.7.0
+	github.com/go-playground/validator/v10 v10.22.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	go.opentelemetry.io/otel v1.31.0
@@ -37,16 +38,19 @@ require (
 	github.com/dolthub/go-icu-regex v0.0.0-20230524105445-af7e7991c97e // indirect
 	github.com/dolthub/jsonpath v0.0.2-0.20240227200619-19675ab05c71 // indirect
 	github.com/dolthub/vitess v0.0.0-20240404214255-c5a87fc7b325 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-kit/kit v0.10.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.2-0.20231213112541-0004702b931d // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/leodido/go-urn v1.1.0 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -57,6 +61,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.31.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.30.0 // indirect

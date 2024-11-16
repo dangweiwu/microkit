@@ -1,4 +1,4 @@
 Host: "localhost:3306"
-user: ""
-Password: "123"
+User: "User"
+Password: "Password"
 Role: "author"
