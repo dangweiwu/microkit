@@ -5,7 +5,6 @@ import (
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/dealancer/validate.v2"
 	"os"
 	"time"
 )
@@ -14,9 +13,7 @@ func New(cfg Config) (*zap.Logger, error) {
 	if err := defaults.Set(&cfg); err != nil {
 		return nil, err
 	}
-	if err := validate.Validate(&cfg); err != nil {
-		return nil, err
-	}
+
 	encoder := setEncode(cfg)
 	write := setWriteSynce(cfg)
 	level := setLevel(cfg)
