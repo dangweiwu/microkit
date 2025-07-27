@@ -27,7 +27,7 @@ type Config struct {
 	Compress     bool   `yaml:"compress" default:"false"`  // 是否压缩，默认不压缩
 	Level        string `yaml:"level" default:"debug" validate:"oneof=error debug panic info warn"`
 	OutType      string `yaml:"outType" default:"console" validate:"oneof=console file all"` // 输出到哪 console all file
-	Formatter    string `yaml:"formatter" default:"txt" validate:"oneof=txt json"`           //json or txt
+	Formatter    string `yaml:"formatter" default:"json" validate:"oneof=json console"`      //json or txt
 	HasTimestamp bool   `yaml:"hasTimestamp" default:"false"`
 	Caller       bool   `yaml:"caller" default:"false"`      //启用堆栈
 	Development  bool   `yaml:"development" default:"false"` // 记录行号

@@ -4,14 +4,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/dangweiwu/microkit/observe/logx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"log"
 )
 
 func main() {
 	cfg := logx.Config{}
+	cfg.LogName = "demo.log"
+	cfg.Formatter = "json"
+	cfg.Development = true
+	cfg.Caller = false
+	cfg.HasTimestamp = true
 
 	lg, err := logx.New(cfg)
 	if err != nil {
@@ -26,6 +32,12 @@ func main() {
 	m = m.ErrData(errors.New("this is err"))
 	m = m.Kind("err")
 	m.Debug(lg)
+
+	Msg("this is info").Info(lg)
+	// logx.SetLevel("info")
+	Msg("this is debug").Debug(lg)
+
+	fmt.Println("over")
 
 }
 

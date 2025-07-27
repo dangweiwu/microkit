@@ -1,89 +1,98 @@
 package logx
 
 import (
-	"github.com/creasty/defaults"
+	"os"
+	"time"
+
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"os"
-	"time"
 )
 
+// 添加包级别的原子级别变量
+var atomicLevel zap.AtomicLevel
+
 func New(cfg Config) (*zap.Logger, error) {
-	if err := defaults.Set(&cfg); err != nil {
-		return nil, err
+	atomicLevel = zap.NewAtomicLevelAt(setLevel(cfg))
+	zapCfg := zap.Config{
+		Level:         atomicLevel,
+		Development:   cfg.Development,
+		DisableCaller: !cfg.Caller,
+		Encoding:      cfg.Formatter,
+		Sampling: &zap.SamplingConfig{
+			Initial:    100,
+			Thereafter: 100,
+		},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "time",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "linenum",
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			FunctionKey:    "func",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.FullCallerEncoder,
+			EncodeName:     zapcore.FullNameEncoder,
+		},
 	}
 
-	encoder := setEncode(cfg)
-	write := setWriteSynce(cfg)
-	level := setLevel(cfg)
-
-	core := zapcore.NewCore(encoder, write, level)
-
-	ops := []zap.Option{}
-	if cfg.Caller {
-		ops = append(ops, zap.AddCaller())
-	}
-	if cfg.Development {
-		ops = append(ops, zap.Development())
-	}
-	return zap.New(core, ops...), nil
-}
-
-// 解析器
-func setEncode(cfg Config) zapcore.Encoder {
-	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "time",  //日志时间的key
-		LevelKey:       "level", //日志level的key
-		NameKey:        "logger",
-		CallerKey:      "linenum", //日志产生的文件及其行数的key
-		MessageKey:     "msg",     //日志内容的key
-		StacktraceKey:  "stacktrace",
-		FunctionKey:    "func",                         // 日志函数的key
-		LineEnding:     zapcore.DefaultLineEnding,      //回车换行
-		EncodeLevel:    zapcore.LowercaseLevelEncoder,  // 小写编码器 info debug not Info Debug
-		EncodeTime:     zapcore.ISO8601TimeEncoder,     // ISO8601 UTC 时间格式
-		EncodeDuration: zapcore.SecondsDurationEncoder, //
-		EncodeCaller:   zapcore.FullCallerEncoder,      // 全路径编码器 包名、文件名、行号
-		EncodeName:     zapcore.FullNameEncoder,
-	}
 	if cfg.HasTimestamp {
-		encoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-			// nanos := t.Unix()
-			// sec := float64(nanos) / float64(time.Second)
-			enc.AppendInt(int(t.UnixMilli()))
-		}
+		zapCfg.EncoderConfig.EncodeTime = customTimeEncoder
 	}
-	if cfg.Formatter == JSON {
-		return zapcore.NewJSONEncoder(encoderConfig)
-	} else {
-		return zapcore.NewConsoleEncoder(encoderConfig)
+
+	// 使用getFileWriter创建带轮转功能的写入器
+	var writer zapcore.WriteSyncer
+	fileWriter := getFileWriter(cfg)
+	switch cfg.OutType {
+	case CONSOLE:
+		writer = zapcore.AddSync(os.Stdout)
+	case FILE:
+		writer = zapcore.AddSync(fileWriter)
+	default:
+		writer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(fileWriter))
 	}
+
+	// 创建编码器
+	var encoder zapcore.Encoder
+	switch zapCfg.Encoding {
+	case JSON:
+		encoder = zapcore.NewJSONEncoder(zapCfg.EncoderConfig)
+	default:
+		encoder = zapcore.NewConsoleEncoder(zapCfg.EncoderConfig)
+	}
+
+	// 创建核心并应用轮转写入器
+	core := zapcore.NewCore(encoder, writer, zapCfg.Level)
+
+	// 使用自定义核心构建logger
+
+	ops := []zap.Option{zap.WrapCore(func(zapcore.Core) zapcore.Core {
+		return core
+	})}
+
+	return zapCfg.Build(ops...)
+
 }
 
-// 输出
-func setWriteSynce(cfg Config) (write zapcore.WriteSyncer) {
-	var hook lumberjack.Logger
-	if cfg.OutType == FILE || cfg.OutType == ALL {
+func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendInt(int(t.UnixMilli()))
+}
 
-		hook = lumberjack.Logger{
-			Filename:   cfg.LogName,    // 日志文件路径，默认 os.TempDir()
-			MaxSize:    cfg.MaxSize,    // 每个日志文件保存10M，默认 100M
-			MaxBackups: cfg.MaxBackNum, // 保留30个备份，默认不限
-			MaxAge:     cfg.MaxAge,     // 保留7天，默认不限
-			Compress:   cfg.Compress,   // 是否压缩，默认不压缩
-		}
+// getFileWriter 创建文件写入器
+func getFileWriter(cfg Config) zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   cfg.LogName,    // 日志文件路径，默认 os.TempDir()
+		MaxSize:    cfg.MaxSize,    // 每个日志文件保存10M，默认 100M
+		MaxBackups: cfg.MaxBackNum, // 保留30个备份，默认不限
+		MaxAge:     cfg.MaxAge,     // 保留7天，默认不限
+		Compress:   cfg.Compress,   // 是否压缩，默认不压缩
 	}
 
-	switch cfg.OutType {
-	case CONSOLE, "":
-		write = zapcore.AddSync(os.Stdout)
-	case FILE:
-		write = zapcore.AddSync(&hook)
-	case ALL:
-		write = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook))
-	}
-	return
+	return zapcore.AddSync(lumberJackLogger)
 }
 
 // 类型
@@ -103,4 +112,22 @@ func setLevel(cfg Config) (level zapcore.Level) {
 		level = zapcore.DebugLevel
 	}
 	return
+}
+
+// 添加动态设置级别方法
+func SetLevel(level string) {
+	var zapLevel zapcore.Level
+	switch level {
+	case "debug":
+		zapLevel = zapcore.DebugLevel
+	case "info":
+		zapLevel = zapcore.InfoLevel
+	case "warn":
+		zapLevel = zapcore.WarnLevel
+	case "error":
+		zapLevel = zapcore.ErrorLevel
+	default:
+		zapLevel = zapcore.InfoLevel
+	}
+	atomicLevel.SetLevel(zapLevel)
 }
